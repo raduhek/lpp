@@ -4,11 +4,6 @@
 #include "stack_node.h"
 #include "stack.h"
 
-typedef struct parse_tree_struct {
-    void *val;
-    struct parse_tree_struct *children[2];
-} parse_tree_t;
-
 void stack_push(stack_t *q, void *val) {
     stack_node_t *temp;
     if (q->head == NULL) {
@@ -60,20 +55,9 @@ void *stack_peak(stack_t *q) {
     return q->head->val;
 }
 
-
-void print_stack(stack_t *q) {
-    stack_node_t *t = q->head;
-    parse_tree_t *x;
-    while (t) {
-        x = (parse_tree_t*) t->val;
-        printf("\t%s\n", (char*)x->val);
-        t = t->prev;
-
-    }
-}
-
 stack_t *new_stack() {
     stack_t *t = (stack_t*)malloc(sizeof(stack_t));
     t->head = NULL;
     return t;
 }
+
