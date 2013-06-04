@@ -82,7 +82,7 @@ char *remove_whitespaces(const char *sentence, int skip_escapes) {
                         continue;
                     }
                     if (sentence[i] == '~') {
-                        new_sentence[j++] = '¿'; // u+00BF (inverted question mark)
+                        new_sentence[j++] = '†'; // u+2020 (dagger)
                         i++;
                         continue;
                     }
