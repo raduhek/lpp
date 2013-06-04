@@ -12,6 +12,24 @@
 #include "../pair/pair.h"
 
 /*
+ * Copy a string from start to end. The indexes are inclusive,
+ * that is (0, 1) are two characters
+ */
+char *string_copy(const char *s, int start, int end) {
+    if (end < start) {
+        return NULL;
+    }
+    int i;
+    char *ret = (char *)malloc((end - start + 2) * sizeof(char));
+    ret[end - start + 1] = '\0';
+    for (i = end; i >= start; --i) {
+        ret[i - start] = s[i];
+    }
+
+    return ret;
+}
+
+/*
  * extract_parentheses adds in pairs_stack pair_t structures
  * which contain the start and end positions of parentheses pair
  * and also the position of the operator from in between the parentheses
