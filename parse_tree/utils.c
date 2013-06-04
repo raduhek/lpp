@@ -13,12 +13,12 @@
 
 /*
  * extract_parentheses adds in pairs_stack pair_t structures
- * which contain the start and end positions of parentheses pair.
+ * which contain the start and end positions of parentheses pair
+ * and also the position of the operator from in between the parentheses
  *
- * It returns a string which is enclosed in a pair of parentheses
- * or removes them is there is more than one such pair
+ * It returns 0 if there are more that two Boolean operators in a pair,
+ * or 1 otherwise
  *
- * e.g.: ((a & b)) becomes (a & b)
  */
 int extract_parentheses(const char *str, stack_t *pairs_stack) {
     // Used for internal processing
