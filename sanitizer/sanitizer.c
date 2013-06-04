@@ -125,12 +125,35 @@ void remove_empty_parentheses(char *str) {
                 --j;
             }
             if (str[j] == '(') {
-                printf("i: %d - j: %d\n", i, j);
                 str[i] = ' ';
                 str[j] = ' ';
             }
         }
         i++;
     }
-    printf("free:%s\n", str);
 }
+
+/*
+ * Just surround the entire phrase with '(' and ')'
+ */
+void surround_with_parentheses(char *str) {
+    int i = 0;
+    char *temp_str;
+    while (str[i] != '\0') {
+        ++i;
+    }
+    temp_str = (char*)realloc(str, (i + 3) * sizeof(char));
+    if (!temp_str) {
+        exit(13);
+    }
+    str = temp_str;
+    str[i+1] = ')';
+    str[i+2] = '\0';
+    i--;
+    while (0 <= i) {
+        str[i + 1] = str[i];
+        --i;
+    }
+    str[0] = '(';
+}
+
