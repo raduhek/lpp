@@ -1,10 +1,42 @@
-#include "string.h"
-#include "stdlib.h"
-#include "stdio.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "sanitizer.h"
 
-char *remove_whitespaces(const char *sentence) {
+int check_parentheses_closing(const char *str) {
+    int i = 0;
+    int open_count = 0;
+    char unalter_char;
+    while (str[i] != '\0') {
+        if (str[i] == '\'' || str[i] == '"') {
+            unalter_char = str[i];
+            i++;
+            while (str[i] != '\0') {
+                if (str[i] == unalter_char && str[i-1] != '\\') {
+                    break;
+                }
+                i++;
+            }
+        }
+        if (str[i] == '(') {
+            open_count++;
+        } else if (str[i] == ')') {
+            open_count--;
+            if (open_count < 0) {
+                return 0;
+            }
+        }
+        i++;
+    }
+    if (open_count != 0) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+char *remove_whitespaces(const char *sentence, int skip_escapes) {
     char *new_sentence;
     int i = 0;
     int j = 0;
@@ -15,28 +47,43 @@ char *remove_whitespaces(const char *sentence) {
 
     while (sentence[i] != '\0') {
         /*
-            If we begin a string (with ' or "),
+            If we begin a string with ' or ",
             copy it unaltered
         */
         if (sentence[i] == '\'' || sentence[i] == '"') {
             unalter_char = sentence[i];
             i++;
+            if (skip_escapes == 0) {
+                new_sentence[j] = unalter_char;
+                j++;
+            }
             while (sentence[i] != '\0') {
-                if (sentence[i] == unalter_char) {
-                    if (sentence[i-1] != '\\') {
+                if (skip_escapes == 0) {
+                    if (sentence[i] == ')') {
+                        new_sentence[j++] = ']';
                         i++;
-                        break;
+                        continue;
+                    }
+                    if (sentence[i] == '(') {
+                        new_sentence[j++] = '[';
+                        i++;
+                        continue;
+                    }
+                }
+                if (sentence[i] == unalter_char && sentence[i-1] != '\\') {
+                    if (skip_escapes) {
+                        i++;
+                    }
+                    break;
+                }
+                if (sentence[i] == '\\') {
+                    if (skip_escapes == 0) {
+                        new_sentence[j] = '\\';
+                        j++;
                     }
                     i++;
                     continue;
                 }
-                if (sentence[i] == '\\') {
-                    i++;
-                    continue;
-                }
-                /*if (sentence[i] == unalter_char && sentence[i-1] != '\\') {
-                    break;
-                }*/
                 new_sentence[j] = sentence[i];
                 i++;
                 j++;
@@ -54,3 +101,36 @@ char *remove_whitespaces(const char *sentence) {
     return new_sentence;
 }
 
+/*
+ *  Returns a string that does not contain empty pairs of parentheses
+ */
+void remove_empty_parentheses(char *str) {
+    int i = 0, j = 0;
+    char unalter_char;
+    
+    while (str[i] != '\0') {
+        if (str[i] == '\'' || str[i] == '"') {
+            unalter_char = str[i];
+            i++;
+            while (str[i] != '\0') {
+                if (str[i] == unalter_char && str[i-1] != '\\') {
+                    break;
+                }
+                i++;
+            }
+        }
+        if (str[i] == ')') {
+            j = i - 1;
+            while (j >= 0 && str[j] == ' ') {
+                --j;
+            }
+            if (str[j] == '(') {
+                printf("i: %d - j: %d\n", i, j);
+                str[i] = ' ';
+                str[j] = ' ';
+            }
+        }
+        i++;
+    }
+    printf("free:%s\n", str);
+}
