@@ -59,13 +59,30 @@ char *remove_whitespaces(const char *sentence, int skip_escapes) {
             }
             while (sentence[i] != '\0') {
                 if (skip_escapes == 0) {
+                    // Replace special characters in order to properly extract parentheses
                     if (sentence[i] == ')') {
-                        new_sentence[j++] = ']';
+                        new_sentence[j++] = '⁂'; // u+2042 (asterism)
                         i++;
                         continue;
                     }
                     if (sentence[i] == '(') {
-                        new_sentence[j++] = '[';
+                        new_sentence[j++] = '❧'; // u+2767 (fleuron)
+                        i++;
+                        continue;
+                    }
+
+                    if (sentence[i] == '&') {
+                        new_sentence[j++] = '§'; // u+00A7 (section sign)
+                        i++;
+                        continue;
+                    }
+                    if (sentence[i] == '|') {
+                        new_sentence[j++] = '¶'; // u+00B6 (pilcrow)
+                        i++;
+                        continue;
+                    }
+                    if (sentence[i] == '~') {
+                        new_sentence[j++] = '¿'; // u+00BF (inverted question mark)
                         i++;
                         continue;
                     }
