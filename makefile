@@ -5,10 +5,12 @@ CCFLAGS=-Wall -c
 all:
 	$(CC) $(CCFLAGS) stack/stack_node.c
 	$(CC) $(CCFLAGS) stack/stack.c
+	$(CC) $(CCFLAGS) pair/pair.c
 	$(CC) $(CCFLAGS) parse_tree/parse_tree.c
 	$(CC) $(CCFLAGS) parse_tree/utils.c
+	$(CC) $(CCFLAGS) sanitizer/sanitizer.c
 	$(CC) $(CCFLAGS) main.c
-	$(CC) -o main main.c parse_tree.o utils.o stack_node.o stack.o
+	$(CC) -o main main.c sanitizer.o parse_tree.o utils.o stack_node.o stack.o pair.o
 
 clean_o:
 	rm -rf *.o
