@@ -3,6 +3,9 @@
 #include <stdio.h>
 
 #include "sanitizer.h"
+#include "../parse_tree/utils.h"
+#include "../stack/stack.h"
+#include "../pair/pair.h"
 
 int check_parentheses_closing(const char *str) {
     int i = 0;
@@ -36,6 +39,28 @@ int check_parentheses_closing(const char *str) {
     }
 }
 
+void unencode_string(char *str) {
+    int i = 0;
+    while (str[i] != '\0') {
+        if (str[i] == '>') {
+            str[i] = ')'; // u+2042 (asterism)
+        }
+        if (str[i] == '<') {
+            str[i] = '('; // u+2767 (fleuron)
+        }
+        if (str[i] == '$') {
+            str[i] = '&'; // u+00A7 (section sign)
+        }
+        if (str[i] == '!') {
+            str[i] = '|'; // u+00B6 (pilcrow)
+        }
+        if (str[i] == '*') {
+            str[i] = '~'; // u+2020 (dagger)
+        }
+        i++;
+    }
+}
+
 char *remove_whitespaces(const char *sentence, int skip_escapes) {
     char *new_sentence;
     int i = 0;
@@ -61,28 +86,30 @@ char *remove_whitespaces(const char *sentence, int skip_escapes) {
                 if (skip_escapes == 0) {
                     // Replace special characters in order to properly extract parentheses
                     if (sentence[i] == ')') {
-                        new_sentence[j++] = '⁂'; // u+2042 (asterism)
+                        new_sentence[j++] = '>'; // u+2042 (asterism)
                         i++;
                         continue;
+                      
                     }
                     if (sentence[i] == '(') {
-                        new_sentence[j++] = '❧'; // u+2767 (fleuron)
+
+                        new_sentence[j++] = '<'; // u+2767 (fleuron)
                         i++;
                         continue;
                     }
 
                     if (sentence[i] == '&') {
-                        new_sentence[j++] = '§'; // u+00A7 (section sign)
+                        new_sentence[j++] = '$'; // u+00A7 (section sign)
                         i++;
                         continue;
                     }
                     if (sentence[i] == '|') {
-                        new_sentence[j++] = '¶'; // u+00B6 (pilcrow)
+                        new_sentence[j++] = '!'; // u+00B6 (pilcrow)
                         i++;
                         continue;
                     }
                     if (sentence[i] == '~') {
-                        new_sentence[j++] = '†'; // u+2020 (dagger)
+                        new_sentence[j++] = '*'; // u+2020 (dagger)
                         i++;
                         continue;
                     }
@@ -174,3 +201,41 @@ void surround_with_parentheses(char *str) {
     str[0] = '(';
 }
 
+/*
+ * Checking for booleaness means that & or | must not be between
+ * two parentheses of the same type
+ */
+int check_boolean_operators(const char *str) {
+    int i = 0;
+    while (str[i] != '\0') {
+        if (str[i] == '&' || str[i] == '|') {
+            if ((str[i-1] == '(' && str[i+1] == '(') ||
+                (str[i-1] == ')' && str[i+1] == ')')) {
+
+                return 0;
+            }
+        }
+        ++i;
+    }
+    return 1;
+}
+
+void remove_duplicate_parentheses(char *phrase, stack_t *phrase_parentheses_stack) {
+    pair_t *pair, *last;
+    int start, end;
+
+    last = (pair_t*) stack_pop(phrase_parentheses_stack);
+    if (last) {
+        start = last->start;
+        end = last->end;
+        while((pair = (pair_t*) stack_pop(phrase_parentheses_stack))) {
+            if (pair->start == (start + 1) && pair->end == end - 1) {
+                phrase[start] = ' ';
+                phrase[end] = ' ';
+            }
+            start = pair->start;
+            end = pair->end;
+        }
+        phrase = remove_whitespaces(phrase, 0);
+    }
+}
