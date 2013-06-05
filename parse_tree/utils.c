@@ -47,7 +47,6 @@ int extract_parentheses(const char *str, stack_t *pairs_stack) {
 
     int i = 0;
     int operator_position = -1;
-
     while (str[i] != '\0') {
         /*
          * When reaching an opening parenthesis, a new pair
@@ -67,6 +66,12 @@ int extract_parentheses(const char *str, stack_t *pairs_stack) {
                 return 0;
             }
             pair = (pair_t*) stack_pop(temp_stack);
+            if (NULL == pair) {
+                // For an yet unknown reason, this happens
+                empty_stack(pairs_stack);
+                empty_stack(temp_stack);
+                return 0;
+            }
             set_pair_op(pair, i);
             operator_position = i;
             stack_push(temp_stack, (void*) pair);
