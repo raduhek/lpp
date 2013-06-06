@@ -21,6 +21,10 @@ int check_parentheses_closing(const char *str) {
                 }
                 i++;
             }
+            // We reached the end, but no closing quote encountered
+            if (str[i] == '\0') {
+                return 0;
+            }
         }
         if (str[i] == '(') {
             open_count++;
@@ -209,9 +213,7 @@ int check_boolean_operators(const char *str) {
     int i = 0;
     while (str[i] != '\0') {
         if (str[i] == '&' || str[i] == '|') {
-            if ((str[i-1] == '(' && str[i+1] == '(') ||
-                (str[i-1] == ')' && str[i+1] == ')')) {
-
+            if ((str[i-1] == '(' || str[i+1] == ')')) {
                 return 0;
             }
         }
