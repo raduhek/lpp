@@ -14,8 +14,21 @@ parse_tree_t *new_parse_tree (void *val, parse_tree_t *left, parse_tree_t *right
     t->left = left;
     t->right = right;
     t->is_operator = is_operator;
+    t->side = 0;
+    t->parent = NULL;
 
     return t;
+}
+
+void set_parse_tree_side (parse_tree_t *node, int side) {
+    if (side != 1 || side != 2) {
+        side = 0;
+    }
+    node->side = side;
+}
+
+void set_parse_tree_parent (parse_tree_t *node, const parse_tree_t *parent) {
+    node->parent = parent;
 }
 
 /*
@@ -45,7 +58,6 @@ parse_tree_t *construct_tree(char *str, stack_t *brackets) {
     
     char *token;
 
-    // Get 
     while (NULL != (outer_pair = (pair_t*)stack_peak(brackets))) {
         outer_pair = (pair_t*) stack_pop(brackets);
         stack_push (inner_pair_stack, (void*) outer_pair);
@@ -80,6 +92,8 @@ parse_tree_t *construct_tree(char *str, stack_t *brackets) {
                         left = new_parse_tree((void *)token, NULL, NULL, 0);
                     }
                     root = new_parse_tree((void *)'~', left, NULL, 1);
+                    set_parse_tree_side(left, PARSE_TREE_LEFT);
+                    set_parse_tree_parent(left, root);
                 } else {
                     unencode_string(token);
                     root = new_parse_tree((void *)token, NULL, NULL, 0);
@@ -101,6 +115,8 @@ parse_tree_t *construct_tree(char *str, stack_t *brackets) {
                         left = new_parse_tree((void *) token, NULL, NULL, 0);
                     }
                     root = new_parse_tree((void*) '~', left, NULL, 1);
+                    set_parse_tree_side(left, PARSE_TREE_LEFT);
+                    set_parse_tree_parent(left, root);
                     left = root;
                 } else {
                     // The left part is not negated
@@ -124,6 +140,8 @@ parse_tree_t *construct_tree(char *str, stack_t *brackets) {
                         right = new_parse_tree((void *) token, NULL, NULL, 0);
                     }
                     root = new_parse_tree((void*) '~', right, NULL, 1);
+                    set_parse_tree_side(right, PARSE_TREE_RIGHT);
+                    set_parse_tree_parent(right, root);
                     right = root;
                 } else {
                     // The right part is not negated
@@ -136,6 +154,12 @@ parse_tree_t *construct_tree(char *str, stack_t *brackets) {
                 }
 
                 root = new_parse_tree((void*) str[current_pair->operator_position], left, right, 1);
+
+                set_parse_tree_side(left, PARSE_TREE_LEFT);
+                set_parse_tree_parent(left, root);
+                set_parse_tree_side(right, PARSE_TREE_RIGHT);
+                set_parse_tree_parent(right, root);
+
                 stack_push(children_stack, (void *) root);
             }
         }
